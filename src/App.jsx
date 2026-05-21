@@ -25,8 +25,6 @@ Quando appropriato, includi:
 
 Sei un professionista che parla a un altro professionista della meccanica.`;
 
-const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
-
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -43,9 +41,7 @@ export default function App() {
     setSelectedTopic(topic);
     setMessages([]);
     setView("chat");
-    if (topic.id !== "libero") {
-      setInput(`Parlami di: ${topic.label} - `);
-    }
+    if (topic.id !== "libero") setInput(`Parlami di: ${topic.label} - `);
   };
 
   const sendMessage = async () => {
@@ -61,14 +57,9 @@ export default function App() {
         ? `L'utente sta chiedendo informazioni su: ${selectedTopic.label} - ${selectedTopic.desc}. `
         : "";
 
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-calls": "true"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
@@ -87,10 +78,7 @@ export default function App() {
   };
 
   const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
   if (view === "chat") {
@@ -111,16 +99,14 @@ export default function App() {
         <div style={styles.messagesArea}>
           {messages.length === 0 && (
             <div style={styles.emptyState}>
-              <div style={styles.emptyIcon}>{selectedTopic?.icon}</div>
-              <div style={styles.emptyTitle}>Pronto per {selectedTopic?.label}</div>
-              <div style={styles.emptyDesc}>{selectedTopic?.desc}</div>
+              <div style={{ fontSize: 48 }}>{selectedTopic?.icon}</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: "#ccc" }}>Pronto per {selectedTopic?.label}</div>
+              <div style={{ fontSize: 13, color: "#556", textAlign: "center" }}>{selectedTopic?.desc}</div>
             </div>
           )}
           {messages.map((m, i) => (
             <div key={i} style={{ ...styles.msgRow, justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
-              {m.role === "assistant" && (
-                <img src="/tano-logo.jpg" alt="TANO" style={styles.avatarLogo} />
-              )}
+              {m.role === "assistant" && <img src="/tano-logo.jpg" alt="TANO" style={styles.avatarLogo} />}
               <div style={{
                 ...styles.bubble,
                 background: m.role === "user" ? selectedTopic?.color || "#00D4AA" : "#1A1F2E",
@@ -138,10 +124,10 @@ export default function App() {
             <div style={{ ...styles.msgRow, justifyContent: "flex-start" }}>
               <img src="/tano-logo.jpg" alt="TANO" style={styles.avatarLogo} />
               <div style={{ ...styles.bubble, background: "#1A1F2E", border: "1px solid #2A2F3E" }}>
-                <div style={styles.typingDots}>
-                  <span style={{ ...styles.dot, animationDelay: "0ms" }} />
-                  <span style={{ ...styles.dot, animationDelay: "150ms" }} />
-                  <span style={{ ...styles.dot, animationDelay: "300ms" }} />
+                <div style={{ display: "flex", gap: 5, padding: "4px 2px" }}>
+                  {[0, 150, 300].map(delay => (
+                    <span key={delay} style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4AF37", animation: "bounce 1s infinite", animationDelay: `${delay}ms`, display: "inline-block" }} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -150,21 +136,10 @@ export default function App() {
         </div>
 
         <div style={styles.inputArea}>
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder="Scrivi la tua domanda tecnica..."
-            style={styles.textarea}
-            rows={2}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={loading || !input.trim()}
-            style={{ ...styles.sendBtn, background: selectedTopic?.color || "#D4AF37", opacity: (!input.trim() || loading) ? 0.4 : 1 }}
-          >
-            ↑
-          </button>
+          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
+            placeholder="Scrivi la tua domanda tecnica..." style={styles.textarea} rows={2} />
+          <button onClick={sendMessage} disabled={loading || !input.trim()}
+            style={{ ...styles.sendBtn, background: selectedTopic?.color || "#D4AF37", opacity: (!input.trim() || loading) ? 0.4 : 1 }}>↑</button>
         </div>
         <style>{`@keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }`}</style>
       </div>
@@ -174,41 +149,37 @@ export default function App() {
   return (
     <div style={styles.appShell}>
       <div style={styles.homeHeader}>
-        <div style={styles.logoArea}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img src="/tano-logo.jpg" alt="TANO" style={styles.logoImg} />
           <div>
-            <div style={styles.logoName}>TANO</div>
-            <div style={styles.logoSub}>Meccatronica Avanzata</div>
+            <div style={{ fontSize: 20, fontWeight: 900, letterSpacing: 3, color: "#fff" }}>TANO</div>
+            <div style={{ fontSize: 10, color: "#556", letterSpacing: 1, textTransform: "uppercase" }}>Meccatronica Avanzata</div>
           </div>
         </div>
         <div style={styles.versionBadge}>AI Pro</div>
       </div>
 
-      <div style={styles.hero}>
-        <div style={styles.heroGlow} />
-        <div style={styles.heroText}>Il tuo esperto di</div>
-        <div style={styles.heroAccent}>Meccatronica Auto</div>
-        <div style={styles.heroDesc}>
-          Analisi tecnica avanzata su sistemi ibridi, FAP, GR e diagnostica elettronica
-        </div>
+      <div style={{ padding: "32px 20px 20px", position: "relative" }}>
+        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 300, height: 200, background: "radial-gradient(ellipse, #D4AF3710 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ fontSize: 14, color: "#667", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Il tuo esperto di</div>
+        <div style={{ fontSize: 32, fontWeight: 900, background: "linear-gradient(90deg, #D4AF37, #FFD700)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -1, lineHeight: 1.1, marginBottom: 10 }}>Meccatronica Auto</div>
+        <div style={{ fontSize: 13, color: "#778", lineHeight: 1.5, maxWidth: 300 }}>Analisi tecnica avanzata su sistemi ibridi, FAP, GR e diagnostica elettronica</div>
       </div>
 
-      <div style={styles.sectionLabel}>SELEZIONA UN ARGOMENTO</div>
+      <div style={{ fontSize: 10, color: "#445", letterSpacing: 2, fontWeight: 700, padding: "0 20px 12px" }}>SELEZIONA UN ARGOMENTO</div>
       <div style={styles.topicsGrid}>
-        {TOPICS.map((topic) => (
+        {TOPICS.map(topic => (
           <button key={topic.id} onClick={() => startChat(topic)} style={styles.topicCard}>
-            <div style={{ ...styles.topicGlow, background: topic.color + "15" }} />
-            <div style={{ ...styles.topicIconBig, color: topic.color, background: topic.color + "18" }}>
-              {topic.icon}
-            </div>
-            <div style={{ ...styles.topicName, color: topic.color }}>{topic.label}</div>
-            <div style={styles.topicDesc}>{topic.desc}</div>
-            <div style={{ ...styles.topicArrow, color: topic.color }}>→</div>
+            <div style={{ position: "absolute", inset: 0, borderRadius: 16, background: topic.color + "15", pointerEvents: "none" }} />
+            <div style={{ width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, color: topic.color, background: topic.color + "18" }}>{topic.icon}</div>
+            <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 0.3, color: topic.color }}>{topic.label}</div>
+            <div style={{ fontSize: 10, color: "#556", lineHeight: 1.4 }}>{topic.desc}</div>
+            <div style={{ fontSize: 16, fontWeight: 700, marginTop: 4, color: topic.color }}>→</div>
           </button>
         ))}
       </div>
 
-      <div style={styles.footer}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 10, color: "#334", padding: "20px 20px 24px", marginTop: "auto" }}>
         <img src="/tano-logo.jpg" alt="TANO" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 6 }} />
         <span>TANO Bosch Car Service · Powered by AI</span>
       </div>
@@ -217,27 +188,12 @@ export default function App() {
 }
 
 const styles = {
-  appShell: { minHeight: "100vh", background: "#0D1117", color: "#E8EAF0", fontFamily: "'Segoe UI', system-ui, sans-serif", display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto", position: "relative" },
+  appShell: { minHeight: "100vh", background: "#0D1117", color: "#E8EAF0", fontFamily: "'Segoe UI', system-ui, sans-serif", display: "flex", flexDirection: "column", maxWidth: 480, margin: "0 auto" },
   homeHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" },
-  logoArea: { display: "flex", alignItems: "center", gap: 12 },
   logoImg: { width: 52, height: 52, objectFit: "contain", borderRadius: 10, filter: "drop-shadow(0 2px 8px rgba(212,175,55,0.5))" },
-  logoName: { fontSize: 20, fontWeight: 900, letterSpacing: 3, color: "#fff" },
-  logoSub: { fontSize: 10, color: "#556", letterSpacing: 1, textTransform: "uppercase" },
   versionBadge: { fontSize: 11, fontWeight: 700, color: "#D4AF37", background: "#D4AF3718", border: "1px solid #D4AF3744", borderRadius: 20, padding: "4px 10px", letterSpacing: 1 },
-  hero: { padding: "32px 20px 20px", position: "relative" },
-  heroGlow: { position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 300, height: 200, background: "radial-gradient(ellipse, #D4AF3710 0%, transparent 70%)", pointerEvents: "none" },
-  heroText: { fontSize: 14, color: "#667", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
-  heroAccent: { fontSize: 32, fontWeight: 900, background: "linear-gradient(90deg, #D4AF37, #FFD700)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -1, lineHeight: 1.1, marginBottom: 10 },
-  heroDesc: { fontSize: 13, color: "#778", lineHeight: 1.5, maxWidth: 300 },
-  sectionLabel: { fontSize: 10, color: "#445", letterSpacing: 2, fontWeight: 700, padding: "0 20px 12px" },
   topicsGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px" },
   topicCard: { background: "#13181F", border: "1px solid #1E2430", borderRadius: 16, padding: "16px 14px", cursor: "pointer", textAlign: "left", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 6 },
-  topicGlow: { position: "absolute", inset: 0, borderRadius: 16, pointerEvents: "none" },
-  topicIconBig: { width: 38, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 },
-  topicName: { fontSize: 13, fontWeight: 800, letterSpacing: 0.3 },
-  topicDesc: { fontSize: 10, color: "#556", lineHeight: 1.4 },
-  topicArrow: { fontSize: 16, fontWeight: 700, marginTop: 4 },
-  footer: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 10, color: "#334", padding: "20px 20px 24px", marginTop: "auto" },
   chatHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 16px 12px", borderBottom: "1px solid #1A1F2E", background: "#0D1117", position: "sticky", top: 0, zIndex: 10 },
   backBtn: { background: "#1A1F2E", border: "none", color: "#fff", fontSize: 18, width: 36, height: 36, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
   headerCenter: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2 },
@@ -246,14 +202,9 @@ const styles = {
   headerLogo: { width: 36, height: 36, objectFit: "contain", borderRadius: 8, filter: "drop-shadow(0 2px 6px rgba(212,175,55,0.4))" },
   messagesArea: { flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: 12, minHeight: 300 },
   emptyState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 10, padding: "40px 20px", opacity: 0.6 },
-  emptyIcon: { fontSize: 48 },
-  emptyTitle: { fontSize: 16, fontWeight: 700, color: "#ccc" },
-  emptyDesc: { fontSize: 13, color: "#556", textAlign: "center" },
   msgRow: { display: "flex", alignItems: "flex-end", gap: 8 },
   avatarLogo: { width: 28, height: 28, objectFit: "contain", borderRadius: 6, flexShrink: 0, filter: "drop-shadow(0 1px 4px rgba(212,175,55,0.4))" },
   bubble: { maxWidth: "80%", padding: "10px 14px", fontSize: 14, lineHeight: 1.6, wordBreak: "break-word" },
-  typingDots: { display: "flex", gap: 5, padding: "4px 2px" },
-  dot: { width: 6, height: 6, borderRadius: "50%", background: "#D4AF37", animation: "bounce 1s infinite", display: "inline-block" },
   inputArea: { display: "flex", gap: 8, padding: "12px 16px 20px", borderTop: "1px solid #1A1F2E", background: "#0D1117", alignItems: "flex-end" },
   textarea: { flex: 1, background: "#13181F", border: "1px solid #2A2F3E", borderRadius: 14, color: "#E8EAF0", fontSize: 14, padding: "10px 14px", resize: "none", outline: "none", fontFamily: "inherit", lineHeight: 1.5 },
   sendBtn: { width: 44, height: 44, borderRadius: 12, border: "none", color: "#000", fontSize: 20, fontWeight: 900, cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" },
