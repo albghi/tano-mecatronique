@@ -160,7 +160,6 @@ export default function App() {
       </div>
 
       <div style={{ padding: "32px 20px 20px", position: "relative" }}>
-        <div style={{ position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)", width: 300, height: 200, background: "radial-gradient(ellipse, #D4AF3710 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ fontSize: 14, color: "#667", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Il tuo esperto di</div>
         <div style={{ fontSize: 32, fontWeight: 900, background: "linear-gradient(90deg, #D4AF37, #FFD700)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: -1, lineHeight: 1.1, marginBottom: 10 }}>Meccatronica Auto</div>
         <div style={{ fontSize: 13, color: "#778", lineHeight: 1.5, maxWidth: 300 }}>Analisi tecnica avanzata su sistemi ibridi, FAP, GR e diagnostica elettronica</div>
